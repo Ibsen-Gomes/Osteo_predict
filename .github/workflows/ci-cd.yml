@@ -3,7 +3,7 @@ name: CI/CD for Deep Learning  # Nome do pipeline
 on:
   push:
     branches:
-      - deploy
+      - main
       # 🚀 Incluindo a nova branch no pipeline
 
 jobs:
