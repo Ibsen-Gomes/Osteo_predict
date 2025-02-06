@@ -44,7 +44,7 @@ model.to(device)
 # 🔹 Iniciar contagem do tempo
 start_time = time.time()
 print("\n🚀 Iniciando treinamento...")
-num_epochs = 100
+num_epochs = 5
 
 for epoch in range(num_epochs):
     model.train()

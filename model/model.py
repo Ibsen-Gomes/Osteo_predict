@@ -7,20 +7,20 @@ class ModifiedResNet18(nn.Module):
         super(ModifiedResNet18, self).__init__()
         # ✅ 1. Melhorando a primeira convolução para capturar mais padrões
         self.model = models.resnet18(pretrained=False)
-        self.model.conv1 = nn.Conv2d(1, 32, kernel_size=7, stride=2, padding=3, bias=False)  # Agora com 64 filtros
-        self.model.bn1 = nn.BatchNorm2d(32)  # Adicionando BatchNorm
+        self.model.conv1 = nn.Conv2d(1, 16, kernel_size=7, stride=2, padding=3, bias=False)  # Agora com 64 filtros
+        self.model.bn1 = nn.BatchNorm2d(16)  # Adicionando BatchNorm
         num_ftrs = self.model.fc.in_features
         self.model.fc = nn.Identity()  # Remover a camada totalmente conectada original
 
         # ✅ 2. Melhorando a extração de características (camadas convolucionais adicionais)
         self.additional_conv = nn.Sequential(
-            nn.Conv2d(32, 64, kernel_size=3, padding=1),
-            nn.BatchNorm2d(64),
+            nn.Conv2d(16, 32, kernel_size=3, padding=1),
+            nn.BatchNorm2d(32),
             nn.ReLU(inplace=True),
             nn.MaxPool2d(kernel_size=2, stride=2),
 
-            nn.Conv2d(64, 128, kernel_size=3, padding=1),
-            nn.BatchNorm2d(128),
+            nn.Conv2d(32, 64, kernel_size=3, padding=1),
+            nn.BatchNorm2d(64),
             nn.ReLU(inplace=True),
             nn.MaxPool2d(kernel_size=2, stride=2),
         )
@@ -30,13 +30,13 @@ class ModifiedResNet18(nn.Module):
 
         # ✅ 3. Melhorando a camada totalmente conectada
         self.fc = nn.Sequential(
-            nn.Linear(self.fc_input_size, 128),
+            nn.Linear(self.fc_input_size, 64),
             nn.ReLU(),
             nn.Dropout(0.4),
-            nn.Linear(128, 64),
+            nn.Linear(64, 32),
             nn.ReLU(),
             nn.Dropout(0.3),
-            nn.Linear(64, 2)  # 2 classes: osteoartrite vs normal
+            nn.Linear(32, 2)  # 2 classes: osteoartrite vs normal
         )
 
     def _calculate_fc_input_size(self):
