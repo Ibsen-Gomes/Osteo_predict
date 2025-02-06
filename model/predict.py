@@ -10,16 +10,16 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from model import create_model  # ✅ Agora a importação funcionará
 
 # 🔹 URL do modelo armazenado no GitHub Actions, na branch `deploy`
-GITHUB_MODEL_URL = "https://github.com/Ibsen-Gomes/Deep-Learning-Pytorch-CI-CD/raw/deploy/model/model.pth"
+GITHUB_MODEL_URL = "https://github.com/Ibsen-Gomes/Osteo_predict/model/model.pth"
 
 # 🔹 Caminho para salvar o modelo baixado localmente
 MODEL_PATH = "model/model.pth"
 
 # 🔹 Baixar modelo treinado do GitHub Actions
 def download_model():
-    """ Faz o download do modelo treinado da branch 'deploy' do GitHub. """
+    """ Faz o download do modelo treinado da branch 'main' do GitHub. """
     if not os.path.exists(MODEL_PATH):  # Evita baixar se já existir
-        print("🔽 Baixando modelo treinado da branch 'deploy' no GitHub...")
+        print("🔽 Baixando modelo treinado da branch 'main' no GitHub...")
         response = requests.get(GITHUB_MODEL_URL, stream=True)
         if response.status_code == 200:
             with open(MODEL_PATH, "wb") as f:
