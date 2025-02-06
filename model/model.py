@@ -7,16 +7,16 @@ class ModifiedResNet18(nn.Module):
         super(ModifiedResNet18, self).__init__()
         # Usar a ResNet18 e modificar a camada de entrada para 1 canal (escala de cinza)
         self.model = models.resnet18(pretrained=False)
-        self.model.conv1 = nn.Conv2d(1, 16, kernel_size=7, stride=2, padding=3, bias=False)
+        self.model.conv1 = nn.Conv2d(1, 8, kernel_size=7, stride=2, padding=3, bias=False)
         num_ftrs = self.model.fc.in_features
         self.model.fc = nn.Identity()  # Remover a camada totalmente conectada original
 
         # Camadas adicionais convolucionais
         self.additional_conv = nn.Sequential(
-            nn.Conv2d(16, 32, kernel_size=3, padding=1),
+            nn.Conv2d(8, 16, kernel_size=3, padding=1),
             nn.ReLU(inplace=True),
             nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.Conv2d(32, 64, kernel_size=3, padding=1),
+            nn.Conv2d(16, 32, kernel_size=3, padding=1),
             nn.ReLU(inplace=True),
             nn.MaxPool2d(kernel_size=2, stride=2)
         )
@@ -26,10 +26,10 @@ class ModifiedResNet18(nn.Module):
 
         # Camada totalmente conectada
         self.fc = nn.Sequential(
-            nn.Linear(self.fc_input_size, 128),  # Ajuste dinâmico com base no tamanho calculado
+            nn.Linear(self.fc_input_size, 64),  # Ajuste dinâmico com base no tamanho calculado
             nn.ReLU(),
             nn.Dropout(0.3),
-            nn.Linear(128, 2)  # 2 classes: osteoartrite vs normal
+            nn.Linear(64, 2)  # 2 classes: osteoartrite vs normal
         )
 
     def _calculate_fc_input_size(self):
