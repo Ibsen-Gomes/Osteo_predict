@@ -1,4 +1,3 @@
-# model/train.py
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -8,21 +7,17 @@ import os
 import sys
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from model import create_model  # ✅ Agora a importação funcionará
+from model import create_model  # ✅ Importa a arquitetura da CNN
 
-# Importar o modelo do arquivo model.py
-#from model.train import create_model  # ✅ Importação correta
-
-
-# Definir transformações para as imagens
+# 🔹 Definir transformações para imagens (tons de cinza, resize e normalização)
 transform = transforms.Compose([
-    transforms.Grayscale(num_output_channels=1),  # Converte para tons de cinza
-    transforms.Resize((224, 224)),               # Redimensiona para 224x224
-    transforms.ToTensor(),                       # Converte para tensor
-    transforms.Normalize(mean=[0.5], std=[0.5])  # Normaliza
+    transforms.Grayscale(num_output_channels=1),
+    transforms.Resize((224, 224)),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.5], std=[0.5])
 ])
 
-# Criar dataset a partir das pastas `osteoporosis/` e `normal/`
+# 🔹 Carregar dataset
 dataset = datasets.ImageFolder(root='data', transform=transform)
 
 # 🔹 Dividir em treino (80%) e teste (20%)
@@ -30,24 +25,29 @@ train_size = int(0.8 * len(dataset))
 test_size = len(dataset) - train_size
 train_dataset, test_dataset = random_split(dataset, [train_size, test_size])
 
-# Criar DataLoaders
+# 🔹 Criar DataLoaders
 train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
 test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
 
-# Criar o modelo a partir do arquivo model.py
+# 🔹 Criar o modelo
 model = create_model()
 
-# Definir loss e otimizador
+# 🔹 Definir função de perda e otimizador
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 
-# Treinar o modelo
+# 🔹 Enviar modelo para GPU se disponível
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
 
-for epoch in range(250):  # 5 épocas
+# 🔹 Treinar o modelo
+print("\n🚀 Iniciando treinamento...")
+num_epochs = 5
+
+for epoch in range(num_epochs):
     model.train()
     running_loss = 0.0
+
     for inputs, labels in train_loader:
         inputs, labels = inputs.to(device), labels.to(device)
         optimizer.zero_grad()
@@ -56,8 +56,22 @@ for epoch in range(250):  # 5 épocas
         loss.backward()
         optimizer.step()
         running_loss += loss.item()
-    print(f"Epoch {epoch+1}, Loss: {running_loss/len(train_loader)}")
 
-# Salvar o modelo treinado
+    # 🔹 Avaliar no conjunto de teste
+    model.eval()
+    correct = 0
+    total = 0
+    with torch.no_grad():
+        for inputs, labels in test_loader:
+            inputs, labels = inputs.to(device), labels.to(device)
+            outputs = model(inputs)
+            _, predicted = torch.max(outputs, 1)  # Obtém a classe predita
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
+
+    accuracy = 100 * correct / total
+    print(f"✅ Epoch {epoch+1}/{num_epochs}, Loss: {running_loss/len(train_loader):.4f}, 🎯 Precisão: {accuracy:.2f}%")
+
+# 🔹 Salvar o modelo treinado
 torch.save(model.state_dict(), 'model/model.pth')
-print("Modelo treinado e salvo em model/model.pth")
+print("\n✅ Modelo treinado e salvo em model/model.pth")
