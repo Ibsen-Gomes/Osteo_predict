@@ -5,6 +5,7 @@ from torch.utils.data import DataLoader, random_split
 from torchvision import datasets, transforms
 import os
 import sys
+import time  # 📌 Biblioteca para medir o tempo
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from model import create_model  # ✅ Importa a arquitetura da CNN
@@ -40,9 +41,10 @@ optimizer = optim.Adam(model.parameters(), lr=0.001)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
 
-# 🔹 Treinar o modelo
+# 🔹 Iniciar contagem do tempo
+start_time = time.time()
 print("\n🚀 Iniciando treinamento...")
-num_epochs = 5
+num_epochs = 100
 
 for epoch in range(num_epochs):
     model.train()
@@ -71,6 +73,11 @@ for epoch in range(num_epochs):
 
     accuracy = 100 * correct / total
     print(f"✅ Epoch {epoch+1}/{num_epochs}, Loss: {running_loss/len(train_loader):.4f}, 🎯 Precisão: {accuracy:.2f}%")
+
+# 🔹 Finalizar contagem do tempo
+end_time = time.time()
+execution_time = end_time - start_time
+print(f"\n⏳ Tempo total de treinamento: {execution_time:.2f} segundos")
 
 # 🔹 Salvar o modelo treinado
 torch.save(model.state_dict(), 'model/model.pth')
