@@ -28,7 +28,7 @@ class ModifiedResNet18(nn.Module):
         self.fc = nn.Sequential(
             nn.Linear(self.fc_input_size, 128),  # Ajuste dinâmico com base no tamanho calculado
             nn.ReLU(),
-            nn.Dropout(0.5),
+            nn.Dropout(0.3),
             nn.Linear(128, 2)  # 2 classes: osteoartrite vs normal
         )
 
